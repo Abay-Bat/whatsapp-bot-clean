@@ -1,3 +1,26 @@
+const fs = require('fs');
+const SESSION_FILE_PATH = './session.json';
+
+let sessionCfg = {};
+if (fs.existsSync(SESSION_FILE_PATH)) {
+    sessionCfg = require(SESSION_FILE_PATH);
+}
+
+const client = new Client({
+    session: sessionCfg
+});
+
+client.on('authenticated', (session) => {
+    // Save session object to file
+    fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), (err) => {
+        if (err) {
+            console.error('Ошибка при сохранении сессии:', err);
+        } else {
+            console.log('✅ Сессия успешно сохранена!');
+        }
+    });
+});
+
 const { Client } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const QRCode = require('qrcode'); // For saving QR code as image
