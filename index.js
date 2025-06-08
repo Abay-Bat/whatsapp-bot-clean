@@ -8,9 +8,15 @@ const client = new Client();
 // Генерация QR-кода
 client.on('qr', qr => {
     console.log('Сканируй QR-код для входа в WhatsApp:');
+    
+    // Generate and print small QR code in terminal
     qrcode.generate(qr, { small: true });
 
-    // Сохраняем QR-код как изображение
+    // Also print the raw QR string as a URL so it can be copied or opened manually
+    console.log('\nИли открой этот URL в браузере для входа:');
+    console.log(qr);
+
+    // Save the QR code as an image file 'qr.png'
     QRCode.toFile('qr.png', qr, function (err) {
         if (err) {
             console.error('Ошибка при сохранении QR-кода:', err);
