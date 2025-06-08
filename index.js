@@ -1,4 +1,8 @@
 const fs = require('fs');
+const { Client } = require('whatsapp-web.js');
+const qrcode = require('qrcode-terminal');
+const QRCode = require('qrcode'); // For saving QR code as image
+
 const SESSION_FILE_PATH = './session.json';
 
 let sessionCfg = {};
@@ -10,36 +14,13 @@ const client = new Client({
     session: sessionCfg
 });
 
-client.on('authenticated', (session) => {
-    // Save session object to file
-    fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), (err) => {
-        if (err) {
-            console.error('Ошибка при сохранении сессии:', err);
-        } else {
-            console.log('✅ Сессия успешно сохранена!');
-        }
-    });
-});
-
-const { Client } = require('whatsapp-web.js');
-const qrcode = require('qrcode-terminal');
-const QRCode = require('qrcode'); // For saving QR code as image
-
-// Создаем клиента
-const client = new Client();
-
-// Генерация QR-кода
 client.on('qr', qr => {
     console.log('Сканируй QR-код для входа в WhatsApp:');
-    
-    // Generate and print small QR code in terminal
     qrcode.generate(qr, { small: true });
 
-    // Also print the raw QR string as a URL so it can be copied or opened manually
     console.log('\nИли открой этот URL в браузере для входа:');
     console.log(qr);
 
-    // Save the QR code as an image file 'qr.png'
     QRCode.toFile('qr.png', qr, function (err) {
         if (err) {
             console.error('Ошибка при сохранении QR-кода:', err);
@@ -49,12 +30,20 @@ client.on('qr', qr => {
     });
 });
 
-// Когда бот готов
+client.on('authenticated', (session) => {
+    fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), (err) => {
+        if (err) {
+            console.error('Ошибка при сохранении сессии:', err);
+        } else {
+            console.log('✅ Сессия успешно сохранена!');
+        }
+    });
+});
+
 client.on('ready', () => {
     console.log('✅ Бот запущен и готов к работе!');
 });
 
-// Обработка входящих сообщений
 client.on('message', async message => {
     const text = message.body.toLowerCase();
 
@@ -103,5 +92,4 @@ client.on('message', async message => {
     }
 });
 
-// Запуск клиента
 client.initialize();
